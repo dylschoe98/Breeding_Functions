@@ -1,3 +1,10 @@
+# ==== Calculate a Cumulative Chromosome Length  ==== #
+#' @param x data.table with a column of 'Chr' and 'Pos' for chromosome and position respectively. Position should be in basepairs 
+#' @return List containing
+#' \describe{
+#' \item{chr_new}{A data.table with three additional columns, 'ChromMin', 'ChromMax', and 'tot_pos' for the minimum position, maxium position and cumulative position per chromosome}
+#' \item{axisdf}{A data.table with the midpoint of each chromosome based on the cumulative length}
+#' }
 library(data.table)
 
 SumChrom<-function(x){
