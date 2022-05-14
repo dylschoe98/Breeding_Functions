@@ -11,7 +11,7 @@ library(data.table)
 library(rrBLUP)
 library(dplyr)
 
-#1) Perform 5 fold CV on just those SNPs 
+#1) Perform k fold CV 
 CV<-function(dt,G,k=5,Repeat=20){
 
 ResultsList<-GroupList<-list()
