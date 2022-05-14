@@ -17,9 +17,8 @@ CV<-function(dt,G,k=5,Repeat=20){
 ResultsList<-GroupList<-list()
 REPS<-Repeat
 k
-for (i in 1:length(GROUPS)){  
-  for (r in 1:REPS){
 
+#Randomly shuffle the data
 data_shuffle<-pheno_sub[sample(1:nrow(dt)),]
   n<-nrow(data_shuffle)   
     group_assign<-rep(letters[1:k],each=n/k)
@@ -34,7 +33,9 @@ data_shuffle<-pheno_sub[sample(1:nrow(dt)),]
 data_shuffle$Group<-group_assign
 GROUPS<-unique(data_shuffle$Group)
 
-
+for (i in 1:length(GROUPS)){  
+  for (r in 1:REPS){
+    
 #Sample 100% -k% for training      
     TrainSet<-sample_n(data_shuffle,size = nrow(data_shuffle[Group !=GROUPS[i]]))
       TestSet<-data_shuffle[!genotype %in% TrainSet$genotype]
