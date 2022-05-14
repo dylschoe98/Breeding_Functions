@@ -62,9 +62,9 @@ y_gebv<-bv_real[names(bv_real) %in% TestSet$genotype]
      y_blues<-TestSet$value
       names(y_blues)<-TestSet$genotype
         y_blues<-y_blues[sort(names(y_blues))]
-ResultsList[[paste0(GROUPS[i],'_',r)]]<-data.table(Group=c(GROUPS[i]),Cor=c(cor(y_blues,y_gebv)))      
+ResultsList[[r]]<-data.table(Group=c(GROUPS[i]),Cor=c(cor(y_blues,y_gebv)))      
   }
-GroupList[[paste0(GROUPS[i],'_',r)]]<-rbindlist(ResultsList)[,lapply(.SD,mean),by=.(Group),.SDcols=c(3)]
+GroupList[[i]]<-rbindlist(ResultsList)[,lapply(.SD,mean),by=.(Group),.SDcols=c(2)]
 }
 return(Pred_DT=rbindlist(GroupList))}
 
