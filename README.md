@@ -5,4 +5,4 @@ This repository contains a set of general functions for use when working with da
 An additional set of functions are included to condcut genomic selection and GWAS analyses. These including calculating minor allele frequency (MAF) 
 conducting cross-validation (CV) for genomic prediciton (GP).
 
-# Simulation Example
+## Simulation Example
