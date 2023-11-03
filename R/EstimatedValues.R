@@ -4,6 +4,7 @@
 #' @param Geno the name of the column that corresponds to the genotype term in the linear model
 #' @param Random a vector for the desired random effects of the model
 #' @param Fixed a vector for the desired fixed effects of the model
+#' @param Residual an optional vector for the residual structure. If not vector is provided the default is independent and identically distributed resiudal structure: '~id(units)' 
 #' @param Weight the name of the column if the residuals should be weighted. The default is FALSE
 #' @param ReturnWeights a TRUE or FALSE statement telling whether the weight of each data point calculated from 1/sqrt(SE) should be returned as described by Smith et al., 2001
 #' @return List containing
@@ -15,12 +16,16 @@
 library(data.table)
 library(asreml)
 
-EstimatedValues<-function(dt,Pheno,Geno, Random,Fixed,Weight=FALSE,ReturnWeights=FALSE){
+EstimatedValues<-function(dt,Pheno,Geno, Random,Fixed,Residual='~id(units)',Weight=FALSE,ReturnWeights=FALSE){
+
+source("~/Breeding_Functions/R/VC.data.table.R") #must call the internal function first
+  
 Weight<-Weight
 S2.Weight<-Weight
 Geno<-Geno
 Ran<-Random
 Fix<-Fixed
+Resid<-Residual
 phenos<-Pheno
 ExpVal_List<-VC_List<-H2_List<-list()
 
@@ -30,13 +35,13 @@ for (i in 1:length(phenos)){
   
 #Call to Asreml for Non-Weighted Analysis or Weighted Analysis
 if(Weight==FALSE){
-  Mod<-asreml(fixed = as.formula(paste("Value~",Fix)), 
-                  random=as.formula(paste0("~",Ran)),residual = ~id(units),na.action = na.method(x=c("include")),data = pheno_sub)
+  Mod<-asreml(fixed = as.formula(paste("value~",Fix)), 
+                  random=as.formula(paste0("~",Ran)),residual =  as.formula(paste("~",Resid)),na.action = na.method(x=c("include")),data = pheno_sub)
   if(!Geno %like% Ran){
     FixSub<-gsub(paste0(Geno),'1',Fix)
 #Make a genotype a random term for heritability
-  ModRand<-asreml(fixed = as.formula(paste("Value~",FixSub)), 
-              random=as.formula(paste0("~",Geno,'+',Ran)),residual = ~id(units),na.action = na.method(x=c("include")),data = pheno_copy)
+  ModRand<-asreml(fixed = as.formula(paste("value~",FixSub)), 
+              random=as.formula(paste0("~",Geno,'+',Ran)),residual = as.formula(paste("~",Resid)),na.action = na.method(x=c("include")),data = pheno_copy)
   
 #Random Predicted and variance components
 PredRand<-predict.asreml(ModRand,classify = Geno, present = Geno)
@@ -44,15 +49,15 @@ PredRand<-predict.asreml(ModRand,classify = Geno, present = Geno)
 H2_List[[i]]<-data.table(H2_Method=c('Cullis'),Pheno=c(phenos[i]),H2=c((1 - ((PredRand$avsed**2) / (2 * vc[Components==Geno]$VarComp)))* 100))
   } #end the second if statement
 }else{
-  Mod<-asreml(fixed = as.formula(paste("Value~",Fixed)), 
-              random=as.formula(paste0("~",Random)),residual = ~id(units),
+  Mod<-asreml(fixed = as.formula(paste("value~",Fixed)), 
+              random=as.formula(paste0("~",Random)),residual = as.formula(paste("~",Resid)),
                 family=asr_gaussian(dispersion=1),weights = as.formula(paste0(S2.Weight)),
                     na.action = na.method(x=c("include")),data = pheno_sub)
   if(!Geno %like% Ran){
       Fix<-gsub(paste0(Geno),'1',Fix)
 #Make genotype a random term for heritability
-  ModRand<-asreml(fixed = as.formula(paste("Value~",Fix)), 
-                random=as.formula(paste0("~",Geno,'+',Ran)),residual = ~id(units),
+  ModRand<-asreml(fixed = as.formula(paste("value~",Fix)), 
+                random=as.formula(paste0("~",Geno,'+',Ran)),residual = as.formula(paste("~",Resid)),
                     family=asr_gaussian(dispersion=1),weights = as.formula(paste0(S2.Weight)),
                        na.action = na.method(x=c("include")),data = pheno_copy)
 #Random Predicted and variance components
